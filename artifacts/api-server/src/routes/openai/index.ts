@@ -2,7 +2,6 @@ import { Router, type IRouter, type Request, type Response, type NextFunction } 
 import { eq, asc, and } from "drizzle-orm";
 import { db, conversations, messages, promptLogs } from "@workspace/db";
 import { openai } from "@workspace/integrations-openai-ai-server";
-import { getAuth } from "@clerk/express";
 import {
   CreateOpenaiConversationBody,
   GetOpenaiConversationParams,
@@ -15,13 +14,7 @@ import {
 const router: IRouter = Router();
 
 function requireAuth(req: Request, res: Response, next: NextFunction): void {
-  const auth = getAuth(req);
-  const userId = auth?.sessionClaims?.userId as string | undefined || auth?.userId;
-  if (!userId) {
-    res.status(401).json({ error: "Unauthorized" });
-    return;
-  }
-  (req as any).userId = userId;
+  (req as any).userId = "default-user";
   next();
 }
 
