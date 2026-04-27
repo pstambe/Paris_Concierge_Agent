@@ -25,9 +25,17 @@ export default function ForgotPasswordScreen() {
   const [newPassword, setNewPassword] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState("");
+  const [resentConfirm, setResentConfirm] = React.useState(false);
 
   const handleRequestReset = async () => {
-    if (!isLoaded || !signIn) return;
+    if (!isLoaded) {
+      setError("Authentication is still loading. Please wait a moment.");
+      return;
+    }
+    if (!signIn) {
+      setError("Could not start password reset. Please try again.");
+      return;
+    }
     setError("");
     setLoading(true);
     try {
@@ -37,7 +45,35 @@ export default function ForgotPasswordScreen() {
       });
       setStep("code");
     } catch (err: any) {
-      setError(err.errors?.[0]?.longMessage ?? err.message ?? "Something went wrong.");
+      const msg =
+        err?.errors?.[0]?.longMessage ??
+        err?.errors?.[0]?.message ??
+        err?.message ??
+        "Something went wrong. Please try again.";
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    if (!isLoaded || !signIn) {
+      setError("Could not resend code. Please go back and try again.");
+      return;
+    }
+    setError("");
+    setResentConfirm(false);
+    setLoading(true);
+    try {
+      await signIn.prepareFirstFactor({ strategy: "reset_password_email_code" });
+      setResentConfirm(true);
+    } catch (err: any) {
+      const msg =
+        err?.errors?.[0]?.longMessage ??
+        err?.errors?.[0]?.message ??
+        err?.message ??
+        "Could not resend code.";
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -48,13 +84,25 @@ export default function ForgotPasswordScreen() {
     setError("");
     setLoading(true);
     try {
-      await signIn.attemptFirstFactor({
+      const result = await signIn.attemptFirstFactor({
         strategy: "reset_password_email_code",
         code,
       });
-      setStep("password");
+      if (result.status === "needs_new_password") {
+        setStep("password");
+      } else if (result.status === "complete") {
+        await setActive({ session: result.createdSessionId });
+        router.replace("/(tabs)" as any);
+      } else {
+        setError("Unexpected state. Please try again from the beginning.");
+      }
     } catch (err: any) {
-      setError(err.errors?.[0]?.longMessage ?? err.message ?? "Invalid code.");
+      const msg =
+        err?.errors?.[0]?.longMessage ??
+        err?.errors?.[0]?.message ??
+        err?.message ??
+        "Invalid code. Please try again.";
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -65,7 +113,10 @@ export default function ForgotPasswordScreen() {
     setError("");
     setLoading(true);
     try {
-      const result = await signIn.resetPassword({ password: newPassword });
+      const result = await signIn.resetPassword({
+        password: newPassword,
+        signOutOfOtherSessions: true,
+      });
       if (result.status === "complete") {
         await setActive({ session: result.createdSessionId });
         router.replace("/(tabs)" as any);
@@ -73,22 +124,42 @@ export default function ForgotPasswordScreen() {
         setStep("done");
       }
     } catch (err: any) {
-      setError(err.errors?.[0]?.longMessage ?? err.message ?? "Could not reset password.");
+      const msg =
+        err?.errors?.[0]?.longMessage ??
+        err?.errors?.[0]?.message ??
+        err?.message ??
+        "Could not reset password. Please try again.";
+      setError(msg);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleStartOver = () => {
+    setStep("email");
+    setCode("");
+    setError("");
+    setResentConfirm(false);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={styles.inner} keyboardShouldPersistTaps="handled">
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        style={{ flex: 1 }}
+      >
+        <ScrollView
+          contentContainerStyle={styles.inner}
+          keyboardShouldPersistTaps="handled"
+        >
           <Text style={styles.logo}>L'Itinéraire</Text>
 
           {step === "email" && (
             <>
               <Text style={styles.title}>Réinitialisation</Text>
-              <Text style={styles.subtitle}>Enter your email and we'll send you a reset code</Text>
+              <Text style={styles.subtitle}>
+                Enter your email and we'll send you a reset code
+              </Text>
 
               <Text style={styles.label}>Email</Text>
               <TextInput
@@ -105,11 +176,16 @@ export default function ForgotPasswordScreen() {
               {error ? <Text style={styles.error}>{error}</Text> : null}
 
               <Pressable
-                style={[styles.button, (!email || loading) && styles.buttonDisabled]}
+                style={[
+                  styles.button,
+                  (!email || loading) && styles.buttonDisabled,
+                ]}
                 onPress={handleRequestReset}
                 disabled={!email || loading}
               >
-                <Text style={styles.buttonText}>{loading ? "Sending…" : "Send reset code"}</Text>
+                <Text style={styles.buttonText}>
+                  {loading ? "Sending…" : "Send reset code"}
+                </Text>
               </Pressable>
             </>
           )}
@@ -117,13 +193,18 @@ export default function ForgotPasswordScreen() {
           {step === "code" && (
             <>
               <Text style={styles.title}>Check your email</Text>
-              <Text style={styles.subtitle}>We sent a 6-digit code to {email}</Text>
+              <Text style={styles.subtitle}>
+                We sent a 6-digit code to {email}
+              </Text>
 
               <Text style={styles.label}>Reset code</Text>
               <TextInput
                 style={styles.input}
                 value={code}
-                onChangeText={setCode}
+                onChangeText={(v) => {
+                  setCode(v);
+                  setError("");
+                }}
                 placeholder="6-digit code"
                 placeholderTextColor="#8A9BAB"
                 keyboardType="numeric"
@@ -131,17 +212,35 @@ export default function ForgotPasswordScreen() {
               />
 
               {error ? <Text style={styles.error}>{error}</Text> : null}
+              {resentConfirm && !error ? (
+                <Text style={styles.success}>Code resent — check your inbox.</Text>
+              ) : null}
 
               <Pressable
-                style={[styles.button, (!code || loading) && styles.buttonDisabled]}
+                style={[
+                  styles.button,
+                  (!code || loading) && styles.buttonDisabled,
+                ]}
                 onPress={handleVerifyCode}
                 disabled={!code || loading}
               >
-                <Text style={styles.buttonText}>{loading ? "Verifying…" : "Verify code"}</Text>
+                <Text style={styles.buttonText}>
+                  {loading ? "Verifying…" : "Verify code"}
+                </Text>
               </Pressable>
 
-              <Pressable style={styles.secondaryButton} onPress={() => setStep("email")}>
-                <Text style={styles.secondaryButtonText}>Try a different email</Text>
+              <Pressable
+                style={[styles.secondaryButton, loading && styles.buttonDisabled]}
+                onPress={handleResendCode}
+                disabled={loading}
+              >
+                <Text style={styles.secondaryButtonText}>
+                  {loading ? "Sending…" : "Resend code"}
+                </Text>
+              </Pressable>
+
+              <Pressable style={styles.secondaryButton} onPress={handleStartOver}>
+                <Text style={styles.mutedText}>Use a different email</Text>
               </Pressable>
             </>
           )}
@@ -149,7 +248,9 @@ export default function ForgotPasswordScreen() {
           {step === "password" && (
             <>
               <Text style={styles.title}>New password</Text>
-              <Text style={styles.subtitle}>Choose a new password for your account</Text>
+              <Text style={styles.subtitle}>
+                Choose a strong new password for your account
+              </Text>
 
               <Text style={styles.label}>New password</Text>
               <TextInput
@@ -165,11 +266,16 @@ export default function ForgotPasswordScreen() {
               {error ? <Text style={styles.error}>{error}</Text> : null}
 
               <Pressable
-                style={[styles.button, (!newPassword || loading) && styles.buttonDisabled]}
+                style={[
+                  styles.button,
+                  (!newPassword || loading) && styles.buttonDisabled,
+                ]}
                 onPress={handleResetPassword}
                 disabled={!newPassword || loading}
               >
-                <Text style={styles.buttonText}>{loading ? "Saving…" : "Set new password"}</Text>
+                <Text style={styles.buttonText}>
+                  {loading ? "Saving…" : "Set new password"}
+                </Text>
               </Pressable>
             </>
           )}
@@ -177,20 +283,25 @@ export default function ForgotPasswordScreen() {
           {step === "done" && (
             <>
               <Text style={styles.title}>Password updated</Text>
-              <Text style={styles.subtitle}>Your password has been reset. You can now sign in.</Text>
-              <Link href="/(auth)/sign-in" replace>
-                <Text style={[styles.button, { textAlign: "center" }]}>
-                  <Text style={styles.buttonText}>Go to sign in</Text>
-                </Text>
-              </Link>
+              <Text style={styles.subtitle}>
+                Your password has been reset. You can now sign in.
+              </Text>
+              <Pressable
+                style={styles.button}
+                onPress={() => router.replace("/(auth)/sign-in" as any)}
+              >
+                <Text style={styles.buttonText}>Go to sign in</Text>
+              </Pressable>
             </>
           )}
 
-          <View style={styles.linkRow}>
-            <Link href="/(auth)/sign-in">
-              <Text style={styles.link}>← Back to sign in</Text>
-            </Link>
-          </View>
+          {step !== "done" && (
+            <View style={styles.linkRow}>
+              <Link href="/(auth)/sign-in">
+                <Text style={styles.link}>← Back to sign in</Text>
+              </Link>
+            </View>
+          )}
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -253,13 +364,18 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: "#1C1510",
   },
-  secondaryButton: { alignItems: "center", marginTop: 16 },
+  secondaryButton: { alignItems: "center", marginTop: 18 },
   secondaryButtonText: {
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Inter_500Medium",
     fontSize: 14,
+    color: "#AC9139",
+  },
+  mutedText: {
+    fontFamily: "Inter_400Regular",
+    fontSize: 13,
     color: "#8A9BAB",
   },
-  linkRow: { alignItems: "center", marginTop: 32 },
+  linkRow: { alignItems: "center", marginTop: 36 },
   link: {
     fontFamily: "Inter_500Medium",
     fontSize: 14,
@@ -269,6 +385,13 @@ const styles = StyleSheet.create({
     fontFamily: "Inter_400Regular",
     fontSize: 12,
     color: "#e74c3c",
-    marginTop: 4,
+    marginTop: 6,
+  },
+  success: {
+    fontFamily: "Inter_400Regular",
+    fontSize: 12,
+    color: "#27ae60",
+    marginTop: 6,
+    textAlign: "center",
   },
 });
