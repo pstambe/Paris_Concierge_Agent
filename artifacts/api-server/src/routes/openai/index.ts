@@ -97,7 +97,7 @@ router.get("/openai/conversations/:id", requireAuth, async (req, res): Promise<v
   const msgs = await db
     .select()
     .from(messages)
-    .where(eq(messages.conversationId, params.data.id))
+    .where(and(eq(messages.conversationId, params.data.id), eq(messages.userId, userId)))
     .orderBy(asc(messages.createdAt));
   res.json({ ...conv, messages: msgs });
 });
@@ -141,7 +141,7 @@ router.get(
     const msgs = await db
       .select()
       .from(messages)
-      .where(eq(messages.conversationId, params.data.id))
+      .where(and(eq(messages.conversationId, params.data.id), eq(messages.userId, userId)))
       .orderBy(asc(messages.createdAt));
     res.json(msgs);
   }
@@ -190,6 +190,7 @@ router.post(
 
     await db.insert(messages).values({
       conversationId,
+      userId,
       role: "user",
       content: userContent,
     });
@@ -197,7 +198,7 @@ router.post(
     const history = await db
       .select()
       .from(messages)
-      .where(eq(messages.conversationId, conversationId))
+      .where(and(eq(messages.conversationId, conversationId), eq(messages.userId, userId)))
       .orderBy(asc(messages.createdAt));
 
     const chatMessages = history.map((m) => ({
@@ -231,6 +232,7 @@ router.post(
 
     await db.insert(messages).values({
       conversationId,
+      userId,
       role: "assistant",
       content: fullResponse,
     });
