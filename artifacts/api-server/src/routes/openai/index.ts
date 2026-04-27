@@ -152,7 +152,9 @@ router.post(
         conversationId,
         content: userContent,
         ipAddress: req.ip ?? null,
-        userAgent: (req.headers["user-agent"] as string) ?? null,
+        userAgent: Array.isArray(req.headers["user-agent"])
+          ? req.headers["user-agent"][0] ?? null
+          : req.headers["user-agent"] ?? null,
       })
       .catch((err) => {
         console.error("[prompt-log] failed to write prompt log:", err);
