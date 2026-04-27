@@ -6,12 +6,13 @@ import {
   StyleSheet,
   Platform,
   TextInput,
+  ImageBackground,
 } from "react-native";
+
 import { fetch } from "expo/fetch";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQueryClient } from "@tanstack/react-query";
-import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 
 import {
@@ -26,6 +27,8 @@ import { useColors } from "@/hooks/useColors";
 import { MessageBubble } from "@/components/MessageBubble";
 import { TypingIndicator } from "@/components/TypingIndicator";
 import { ChatInput } from "@/components/ChatInput";
+
+const parisBg = require("@/assets/images/paris-bg.png");
 
 interface LocalMessage {
   id: string;
@@ -195,8 +198,14 @@ export default function ChatScreen() {
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 16;
 
   return (
-    <KeyboardAvoidingView
+    <ImageBackground
+      source={parisBg}
       style={[styles.container, { backgroundColor: colors.background }]}
+      imageStyle={styles.bgImage}
+      resizeMode="cover"
+    >
+    <KeyboardAvoidingView
+      style={styles.flex}
       behavior="padding"
       keyboardVerticalOffset={0}
     >
@@ -251,12 +260,19 @@ export default function ChatScreen() {
         </Text>
       </View>
     </KeyboardAvoidingView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  flex: {
+    flex: 1,
+  },
+  bgImage: {
+    opacity: 0.15,
   },
   header: {
     flexDirection: "row",
