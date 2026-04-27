@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Switch, Route, useLocation, Router as WouterRouter, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
-import { ClerkProvider, SignIn, SignUp, Show, useClerk } from "@clerk/react";
+import { ClerkProvider, SignIn, SignUp, Show, useAuth } from "@clerk/react";
 import { shadcn } from "@clerk/themes";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -71,20 +71,16 @@ const clerkAppearance = {
 };
 
 function ClerkQueryClientCacheInvalidator() {
-  const { addListener } = useClerk();
+  const { userId } = useAuth();
   const qc = useQueryClient();
   const prevUserIdRef = useRef<string | null | undefined>(undefined);
 
   useEffect(() => {
-    const unsubscribe = addListener(({ user }) => {
-      const userId = user?.id ?? null;
-      if (prevUserIdRef.current !== undefined && prevUserIdRef.current !== userId) {
-        qc.clear();
-      }
-      prevUserIdRef.current = userId;
-    });
-    return unsubscribe;
-  }, [addListener, qc]);
+    if (prevUserIdRef.current !== undefined && prevUserIdRef.current !== userId) {
+      qc.clear();
+    }
+    prevUserIdRef.current = userId ?? null;
+  }, [userId, qc]);
 
   return null;
 }
