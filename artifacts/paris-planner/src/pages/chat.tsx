@@ -87,13 +87,11 @@ export default function ChatPage() {
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage:
-              "url('https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?q=80&w=900&auto=format&fit=crop')",
-            backgroundSize: "auto 82%",
+            backgroundImage: "url('/paris-bg.png')",
+            backgroundSize: "cover",
             backgroundRepeat: "no-repeat",
-            backgroundPosition: "center bottom",
-            opacity: 0.11,
-            filter: "sepia(40%) contrast(1.1)",
+            backgroundPosition: "center center",
+            opacity: 0.18,
           }}
         />
         
