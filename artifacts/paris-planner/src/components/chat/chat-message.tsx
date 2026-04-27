@@ -16,17 +16,24 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
     const collapsed = text.replace(/\n{3,}/g, "\n\n").trim();
     const lines = collapsed.split("\n");
     let prevWasBlank = false;
+    let prevWasList = false;
+
+    const isListLine = (l: string) => /^[\-\*]\s/.test(l.trim());
 
     return lines.map((line, i) => {
       const isBlank = line.trim() === "";
 
       if (isBlank) {
-        if (prevWasBlank) return null;
+        // Skip if already had a blank, or if sandwiched between two list items
+        const nextNonBlank = lines.slice(i + 1).find(l => l.trim() !== "");
+        if (prevWasBlank || (prevWasList && nextNonBlank && isListLine(nextNonBlank))) return null;
         prevWasBlank = true;
+        prevWasList = false;
         return <div key={i} className="h-1" />;
       }
 
       prevWasBlank = false;
+      prevWasList = isListLine(line);
 
       if (line.match(/^-{3,}$/)) {
         return <hr key={i} className="my-1 border-border" />;
