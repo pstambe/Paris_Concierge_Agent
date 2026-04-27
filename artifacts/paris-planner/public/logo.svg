@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" fill="none">
+  <rect width="80" height="80" rx="16" fill="#2B3D4F"/>
+  <!-- Eiffel Tower silhouette -->
+  <g fill="#AC9139">
+    <!-- Top spire -->
+    <rect x="38.5" y="8" width="3" height="8" rx="1"/>
+    <!-- Upper section -->
+    <polygon points="35,16 40,12 45,16 43,22 37,22"/>
+    <!-- Middle section -->
+    <polygon points="33,22 40,20 47,22 45,32 35,32"/>
+    <!-- Lower section -->
+    <polygon points="30,32 40,30 50,32 48,44 32,44"/>
+    <!-- Base legs -->
+    <rect x="28" y="44" width="6" height="3" rx="1"/>
+    <rect x="46" y="44" width="6" height="3" rx="1"/>
+    <rect x="26" y="47" width="8" height="3" rx="1"/>
+    <rect x="46" y="47" width="8" height="3" rx="1"/>
+    <!-- Arch -->
+    <path d="M34 44 Q40 38 46 44" stroke="#AC9139" stroke-width="2" fill="none"/>
+    <!-- Ground base -->
+    <rect x="22" y="50" width="36" height="3" rx="1.5"/>
+  </g>
+  <!-- Stars -->
+  <circle cx="18" cy="20" r="1.5" fill="#AC9139" opacity="0.6"/>
+  <circle cx="62" cy="15" r="1" fill="#AC9139" opacity="0.5"/>
+  <circle cx="65" cy="35" r="1.5" fill="#AC9139" opacity="0.4"/>
+  <circle cx="15" cy="40" r="1" fill="#AC9139" opacity="0.5"/>
+</svg>

@@ -1,7 +1,8 @@
-import { Router, type IRouter, type Request, type Response } from "express";
-import { eq, asc } from "drizzle-orm";
+import { Router, type IRouter, type Request, type Response, type NextFunction } from "express";
+import { eq, asc, and } from "drizzle-orm";
 import { db, conversations, messages, promptLogs } from "@workspace/db";
 import { openai } from "@workspace/integrations-openai-ai-server";
+import { getAuth } from "@clerk/express";
 import {
   CreateOpenaiConversationBody,
   GetOpenaiConversationParams,
@@ -12,6 +13,17 @@ import {
 } from "@workspace/api-zod";
 
 const router: IRouter = Router();
+
+function requireAuth(req: Request, res: Response, next: NextFunction): void {
+  const auth = getAuth(req);
+  const userId = auth?.sessionClaims?.userId as string | undefined || auth?.userId;
+  if (!userId) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  (req as any).userId = userId;
+  next();
+}
 
 const PARIS_SYSTEM_PROMPT = `You are a knowledgeable, warm, and enthusiastic Paris travel expert — like a well-traveled French friend who knows the city intimately. Your role is to help users plan a personalized Paris trip.
 
@@ -43,15 +55,18 @@ HARMFUL CONTENT: Refuse to produce any content that is harmful, illegal, offensi
 
 IDENTITY: You are L'Itinéraire, a Paris travel concierge. Do not claim to be any other AI model, product, or persona.`;
 
-router.get("/openai/conversations", async (req, res): Promise<void> => {
+router.get("/openai/conversations", requireAuth, async (req, res): Promise<void> => {
+  const userId = (req as any).userId as string;
   const convs = await db
     .select()
     .from(conversations)
+    .where(eq(conversations.userId, userId))
     .orderBy(asc(conversations.createdAt));
   res.json(convs);
 });
 
-router.post("/openai/conversations", async (req, res): Promise<void> => {
+router.post("/openai/conversations", requireAuth, async (req, res): Promise<void> => {
+  const userId = (req as any).userId as string;
   const parsed = CreateOpenaiConversationBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -59,12 +74,13 @@ router.post("/openai/conversations", async (req, res): Promise<void> => {
   }
   const [conv] = await db
     .insert(conversations)
-    .values({ title: parsed.data.title })
+    .values({ title: parsed.data.title, userId })
     .returning();
   res.status(201).json(conv);
 });
 
-router.get("/openai/conversations/:id", async (req, res): Promise<void> => {
+router.get("/openai/conversations/:id", requireAuth, async (req, res): Promise<void> => {
+  const userId = (req as any).userId as string;
   const params = GetOpenaiConversationParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -73,7 +89,7 @@ router.get("/openai/conversations/:id", async (req, res): Promise<void> => {
   const [conv] = await db
     .select()
     .from(conversations)
-    .where(eq(conversations.id, params.data.id));
+    .where(and(eq(conversations.id, params.data.id), eq(conversations.userId, userId)));
   if (!conv) {
     res.status(404).json({ error: "Conversation not found" });
     return;
@@ -86,7 +102,8 @@ router.get("/openai/conversations/:id", async (req, res): Promise<void> => {
   res.json({ ...conv, messages: msgs });
 });
 
-router.delete("/openai/conversations/:id", async (req, res): Promise<void> => {
+router.delete("/openai/conversations/:id", requireAuth, async (req, res): Promise<void> => {
+  const userId = (req as any).userId as string;
   const params = DeleteOpenaiConversationParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -94,7 +111,7 @@ router.delete("/openai/conversations/:id", async (req, res): Promise<void> => {
   }
   const [conv] = await db
     .delete(conversations)
-    .where(eq(conversations.id, params.data.id))
+    .where(and(eq(conversations.id, params.data.id), eq(conversations.userId, userId)))
     .returning();
   if (!conv) {
     res.status(404).json({ error: "Conversation not found" });
@@ -105,10 +122,20 @@ router.delete("/openai/conversations/:id", async (req, res): Promise<void> => {
 
 router.get(
   "/openai/conversations/:id/messages",
+  requireAuth,
   async (req, res): Promise<void> => {
+    const userId = (req as any).userId as string;
     const params = ListOpenaiMessagesParams.safeParse(req.params);
     if (!params.success) {
       res.status(400).json({ error: params.error.message });
+      return;
+    }
+    const [conv] = await db
+      .select()
+      .from(conversations)
+      .where(and(eq(conversations.id, params.data.id), eq(conversations.userId, userId)));
+    if (!conv) {
+      res.status(404).json({ error: "Conversation not found" });
       return;
     }
     const msgs = await db
@@ -122,7 +149,9 @@ router.get(
 
 router.post(
   "/openai/conversations/:id/messages",
+  requireAuth,
   async (req, res): Promise<void> => {
+    const userId = (req as any).userId as string;
     const params = SendOpenaiMessageParams.safeParse(req.params);
     if (!params.success) {
       res.status(400).json({ error: params.error.message });
@@ -140,13 +169,12 @@ router.post(
     const [conv] = await db
       .select()
       .from(conversations)
-      .where(eq(conversations.id, conversationId));
+      .where(and(eq(conversations.id, conversationId), eq(conversations.userId, userId)));
     if (!conv) {
       res.status(404).json({ error: "Conversation not found" });
       return;
     }
 
-    // Log every user prompt — fire-and-forget, never blocks the main request
     db.insert(promptLogs)
       .values({
         conversationId,
