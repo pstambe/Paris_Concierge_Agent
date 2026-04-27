@@ -1,0 +1,27 @@
+kind = "mobile"
+previewPath = "/mobile/"
+title = "Paris Planner Mobile"
+version = "1.0.0"
+id = "artifacts/paris-planner-mobile"
+router = "expo-domain"
+
+[[integratedSkills]]
+name = "expo"
+version = "1.0.0"
+
+[[services]]
+ensurePreviewReachable = "/status"
+name = "expo"
+paths = [ "/mobile/" ]
+localPort = 26224
+
+[services.development]
+run = "pnpm --filter @workspace/paris-planner-mobile run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/paris-planner-mobile", "run", "build" ]
+run = [ "pnpm", "--filter", "@workspace/paris-planner-mobile", "run", "serve" ]
+
+[services.env]
+PORT = "26224"
+BASE_PATH = "/mobile/"

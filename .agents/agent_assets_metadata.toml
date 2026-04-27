@@ -1,0 +1,8 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "0Ujc1kZNZguTId39C7F0h"
+uri = "file://artifacts/paris-planner-mobile/assets/images/icon.png"
+type = "image"
+title = "paris planner mobile icon"
