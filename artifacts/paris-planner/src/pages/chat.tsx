@@ -83,8 +83,19 @@ export default function ChatPage() {
       <Sidebar currentId={currentId} />
       
       <main className="flex-1 flex flex-col h-full relative w-full pt-14 md:pt-0">
-        {/* Subtle background decoration */}
-        <div className="absolute inset-0 pointer-events-none opacity-[0.03] mix-blend-multiply bg-[url('https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center" />
+        {/* Eiffel Tower background */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage:
+              "url('https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?q=80&w=900&auto=format&fit=crop')",
+            backgroundSize: "auto 82%",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center bottom",
+            opacity: 0.11,
+            filter: "sepia(40%) contrast(1.1)",
+          }}
+        />
         
         {isInitializing ? (
           <div className="flex-1 flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-1000">
