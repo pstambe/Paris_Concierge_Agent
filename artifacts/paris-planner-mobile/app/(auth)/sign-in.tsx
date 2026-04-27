@@ -133,6 +133,10 @@ export default function SignInScreen() {
             </Text>
           </Pressable>
 
+          <Pressable style={styles.secondaryButton} onPress={() => router.push("/(auth)/forgot-password" as any)}>
+            <Text style={styles.secondaryButtonText}>Forgot password?</Text>
+          </Pressable>
+
           <View style={styles.linkRow}>
             <Text style={styles.linkText}>No account? </Text>
             <Link href="/(auth)/sign-up">
