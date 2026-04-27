@@ -200,7 +200,7 @@ export default function ChatScreen() {
 
   const reversedMessages = [...messages].reverse();
   const topPad = insets.top + (Platform.OS === "web" ? 47 : 0);
-  const bottomPad = Platform.OS === "web" ? 34 : tabBarHeight;
+  const bottomPad = Platform.OS === "web" ? 34 : tabBarHeight + 130;
 
   return (
     <KeyboardAvoidingView
