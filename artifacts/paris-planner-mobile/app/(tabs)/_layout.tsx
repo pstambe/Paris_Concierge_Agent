@@ -18,10 +18,6 @@ function NativeTabLayout() {
         <Icon sf={{ default: "bubble.left", selected: "bubble.left.fill" }} />
         <Label>Chat</Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="history">
-        <Icon sf={{ default: "book", selected: "book.fill" }} />
-        <Label>Notebooks</Label>
-      </NativeTabs.Trigger>
     </NativeTabs>
   );
 }
@@ -39,26 +35,7 @@ function ClassicTabLayout() {
         tabBarActiveTintColor: colors.secondary,
         tabBarInactiveTintColor: colors.mutedForeground,
         headerShown: false,
-        tabBarStyle: {
-          position: "absolute",
-          backgroundColor: isIOS ? "transparent" : colors.background,
-          borderTopWidth: isWeb ? 1 : StyleSheet.hairlineWidth,
-          borderTopColor: colors.border,
-          elevation: 0,
-          ...(isWeb ? { height: 84 } : {}),
-        },
-        tabBarBackground: () =>
-          isIOS ? (
-            <BlurView
-              intensity={90}
-              tint={isDark ? "dark" : "extraLight"}
-              style={StyleSheet.absoluteFill}
-            />
-          ) : isWeb ? (
-            <View
-              style={[StyleSheet.absoluteFill, { backgroundColor: colors.background }]}
-            />
-          ) : null,
+        tabBarStyle: { display: "none" },
       }}
     >
       <Tabs.Screen
@@ -76,13 +53,7 @@ function ClassicTabLayout() {
       <Tabs.Screen
         name="history"
         options={{
-          title: "Notebooks",
-          tabBarIcon: ({ color }) =>
-            isIOS ? (
-              <SymbolView name="book" tintColor={color} size={22} />
-            ) : (
-              <Feather name="book-open" size={22} color={color} />
-            ),
+          href: null,
         }}
       />
     </Tabs>

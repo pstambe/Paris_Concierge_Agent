@@ -5,26 +5,24 @@ import {
   FlatList,
   StyleSheet,
   Platform,
-  TouchableOpacity,
   TextInput,
 } from "react-native";
 import { fetch } from "expo/fetch";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useQueryClient } from "@tanstack/react-query";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 
 import {
   useCreateOpenaiConversation,
+  useListOpenaiConversations,
   useListOpenaiMessages,
   getListOpenaiConversationsQueryKey,
   getListOpenaiMessagesQueryKey,
 } from "@workspace/api-client-react";
 
 import { useColors } from "@/hooks/useColors";
-import { useConversation } from "@/context/ConversationContext";
 import { MessageBubble } from "@/components/MessageBubble";
 import { TypingIndicator } from "@/components/TypingIndicator";
 import { ChatInput } from "@/components/ChatInput";
@@ -44,9 +42,7 @@ function generateId(): string {
 export default function ChatScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const tabBarHeight = useBottomTabBarHeight();
   const queryClient = useQueryClient();
-  const { currentConversationId, setCurrentConversationId } = useConversation();
   const createConversation = useCreateOpenaiConversation();
   const inputRef = useRef<TextInput>(null);
   const initializedRef = useRef(false);
@@ -56,20 +52,23 @@ export default function ChatScreen() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [showTyping, setShowTyping] = useState(false);
 
+  const { data: conversations = [], isLoading: isLoadingConvList } = useListOpenaiConversations();
+
+  const currentConversationId = conversations.length > 0 ? conversations[0].id : undefined;
+
   const { data: serverMessages } = useListOpenaiMessages(
     currentConversationId as number,
     { query: { enabled: !!currentConversationId } }
   );
 
   useEffect(() => {
-    if (currentConversationId === undefined && !creatingRef.current) {
+    if (!isLoadingConvList && conversations.length === 0 && !creatingRef.current) {
       creatingRef.current = true;
       createConversation.mutate(
-        { data: { title: "New Planning Session" } },
+        { data: { title: "My Paris Trip" } },
         {
-          onSuccess: (conv) => {
+          onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: getListOpenaiConversationsQueryKey() });
-            setCurrentConversationId(conv.id);
             creatingRef.current = false;
           },
           onError: () => {
@@ -78,7 +77,7 @@ export default function ChatScreen() {
         }
       );
     }
-  }, [currentConversationId]);
+  }, [isLoadingConvList, conversations.length]);
 
   useEffect(() => {
     initializedRef.current = false;
@@ -98,18 +97,12 @@ export default function ChatScreen() {
     }
   }, [serverMessages]);
 
-  const handleNewChat = () => {
-    if (Platform.OS !== "web") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    }
-    setCurrentConversationId(undefined);
-    creatingRef.current = false;
-    initializedRef.current = false;
-    setMessages([]);
-  };
-
   const handleSend = async (text: string) => {
     if (isStreaming || !currentConversationId) return;
+
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
 
     const domain = process.env.EXPO_PUBLIC_DOMAIN;
     const userMsg: LocalMessage = { id: generateId(), role: "user", content: text };
@@ -194,13 +187,12 @@ export default function ChatScreen() {
       queryClient.invalidateQueries({
         queryKey: getListOpenaiMessagesQueryKey(currentConversationId),
       });
-      queryClient.invalidateQueries({ queryKey: getListOpenaiConversationsQueryKey() });
     }
   };
 
   const reversedMessages = [...messages].reverse();
   const topPad = insets.top + (Platform.OS === "web" ? 47 : 0);
-  const bottomPad = Platform.OS === "web" ? 34 : tabBarHeight + 130;
+  const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 16;
 
   return (
     <KeyboardAvoidingView
@@ -222,14 +214,6 @@ export default function ChatScreen() {
           <Text style={[styles.headerTitle, { color: colors.foreground }]}>L'Itinéraire</Text>
           <Text style={[styles.headerSub, { color: colors.mutedForeground }]}>Paris Concierge</Text>
         </View>
-        <TouchableOpacity
-          onPress={handleNewChat}
-          style={[styles.newChatBtn, { backgroundColor: colors.muted }]}
-          activeOpacity={0.7}
-          testID="new-chat-button"
-        >
-          <Feather name="plus" size={18} color={colors.foreground} />
-        </TouchableOpacity>
       </View>
 
       <FlatList
@@ -261,7 +245,7 @@ export default function ChatScreen() {
       />
 
       <View style={{ paddingBottom: bottomPad }}>
-        <ChatInput ref={inputRef} onSend={handleSend} disabled={isStreaming} />
+        <ChatInput ref={inputRef} onSend={handleSend} disabled={isStreaming || !currentConversationId} />
         <Text style={[styles.disclaimer, { color: colors.mutedForeground }]}>
           AI concierge · Verify recommendations before booking
         </Text>
@@ -296,13 +280,6 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 1,
     marginTop: 1,
-  },
-  newChatBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: "center",
-    justifyContent: "center",
   },
   listContent: {
     paddingVertical: 12,
