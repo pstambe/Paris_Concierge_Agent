@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Paris Planner Mobile",
-    "slug": "paris-planner-mobile",
+    "name": "Paris Planner",
+    "slug": "parisplanner",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "paris-planner-mobile",
+    "scheme": "parisplanner",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -14,9 +14,12 @@
       "backgroundColor": "#FBFAF6"
     },
     "ios": {
-      "supportsTablet": false
+      "supportsTablet": false,
+      "bundleIdentifier": "com.parisplanner.app"
     },
-    "android": {},
+    "android": {
+      "package": "com.parisplanner.app"
+    },
     "web": {
       "favicon": "./assets/images/icon.png"
     },
