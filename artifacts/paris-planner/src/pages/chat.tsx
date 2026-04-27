@@ -124,6 +124,24 @@ export default function ChatPage() {
                       <ChatMessage key={msg.id} message={msg} />
                     ))}
                     
+                    {isStreaming && !streamingMessage && (
+                      <div className="flex items-end gap-3 animate-in fade-in duration-500">
+                        <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center flex-shrink-0">
+                          <span className="font-serif text-sm text-primary">B</span>
+                        </div>
+                        <div className="bg-card border border-border rounded-2xl rounded-bl-sm px-4 py-3 flex flex-col gap-2 max-w-xs">
+                          <p className="text-sm text-primary font-serif italic animate-pulse">
+                            Building your magical itinerary…
+                          </p>
+                          <div className="flex gap-1.5 items-center">
+                            <span className="w-2 h-2 rounded-full bg-primary/60 animate-bounce [animation-delay:0ms]" />
+                            <span className="w-2 h-2 rounded-full bg-primary/60 animate-bounce [animation-delay:150ms]" />
+                            <span className="w-2 h-2 rounded-full bg-primary/60 animate-bounce [animation-delay:300ms]" />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     {isStreaming && streamingMessage && (
                       <ChatMessage 
                         message={{ role: "assistant", content: streamingMessage }} 

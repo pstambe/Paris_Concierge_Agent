@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -32,8 +32,31 @@ function Dot({ delay }: { delay: number }) {
 
   return (
     <Animated.View
-      style={[styles.dot, { backgroundColor: colors.mutedForeground }, animStyle]}
+      style={[styles.dot, { backgroundColor: colors.primary }, animStyle]}
     />
+  );
+}
+
+function PulsingText({ text, colors }: { text: string; colors: ReturnType<typeof useColors> }) {
+  const opacity = useSharedValue(0.6);
+
+  useEffect(() => {
+    opacity.value = withRepeat(
+      withSequence(
+        withTiming(1, { duration: 900 }),
+        withTiming(0.5, { duration: 900 })
+      ),
+      -1,
+      false
+    );
+  }, []);
+
+  const animStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
+
+  return (
+    <Animated.Text style={[styles.label, { color: colors.primary }, animStyle]}>
+      {text}
+    </Animated.Text>
   );
 }
 
@@ -49,6 +72,10 @@ export function TypingIndicator() {
           { backgroundColor: colors.assistantBubble, borderColor: colors.assistantBubbleBorder },
         ]}
       >
+        <PulsingText
+          text="Building your magical itinerary…"
+          colors={colors}
+        />
         <View style={styles.dots}>
           <Dot delay={0} />
           <Dot delay={180} />
@@ -75,10 +102,16 @@ const styles = StyleSheet.create({
   },
   bubble: {
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingVertical: 12,
     borderRadius: 16,
     borderBottomLeftRadius: 4,
     borderWidth: 1,
+    gap: 8,
+  },
+  label: {
+    fontSize: 13,
+    fontStyle: "italic",
+    letterSpacing: 0.2,
   },
   dots: {
     flexDirection: "row",
