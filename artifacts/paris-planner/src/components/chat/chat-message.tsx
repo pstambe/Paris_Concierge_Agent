@@ -16,25 +16,25 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
     const lines = text.split("\n");
     return lines.map((line, i) => {
       if (line.startsWith("### ")) {
-        return <h3 key={i} className="text-lg font-serif font-semibold text-primary mt-4 mb-2">{line.replace("### ", "")}</h3>;
+        return <h3 key={i} className="text-base font-serif font-semibold text-primary mt-3 mb-0.5">{line.replace("### ", "")}</h3>;
       }
       if (line.startsWith("## ")) {
-        return <h2 key={i} className="text-xl font-serif font-bold text-primary mt-5 mb-2">{line.replace("## ", "")}</h2>;
+        return <h2 key={i} className="text-lg font-serif font-bold text-primary mt-3 mb-0.5">{line.replace("## ", "")}</h2>;
       }
       if (line.startsWith("# ")) {
-        return <h1 key={i} className="text-2xl font-serif font-bold text-primary mt-6 mb-3">{line.replace("# ", "")}</h1>;
+        return <h1 key={i} className="text-xl font-serif font-bold text-primary mt-3 mb-1">{line.replace("# ", "")}</h1>;
       }
       if (line.match(/^[\-\*]\s/)) {
         return (
-          <li key={i} className="ml-4 list-disc mb-1">
+          <li key={i} className="ml-4 list-disc">
             {renderInlineMarkdown(line.replace(/^[\-\*]\s/, ""))}
           </li>
         );
       }
       if (line.trim() === "") {
-        return <br key={i} />;
+        return <div key={i} className="h-2" />;
       }
-      return <p key={i} className="mb-2 leading-relaxed">{renderInlineMarkdown(line)}</p>;
+      return <p key={i} className="mb-1 leading-snug">{renderInlineMarkdown(line)}</p>;
     });
   };
 
@@ -52,7 +52,7 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
   };
 
   return (
-    <div className={cn("flex w-full gap-4 py-6", isUser ? "flex-row-reverse" : "flex-row")}>
+    <div className={cn("flex w-full gap-3 py-2", isUser ? "flex-row-reverse" : "flex-row")}>
       <div className={cn("flex-shrink-0", isUser && "hidden md:block")}>
         <Avatar className={cn("w-10 h-10 border-2 shadow-sm", isUser ? "border-secondary/20" : "border-primary/20")}>
           {isUser ? (
@@ -68,7 +68,7 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
         isUser ? "items-end" : "items-start"
       )}>
         <div className={cn(
-          "px-5 py-4 rounded-xl shadow-sm text-[15px]",
+          "px-4 py-3 rounded-xl shadow-sm text-[15px]",
           isUser 
             ? "bg-secondary text-secondary-foreground rounded-tr-none shadow-secondary/10" 
             : "bg-card text-card-foreground border border-card-border rounded-tl-none shadow-card-border/50"
