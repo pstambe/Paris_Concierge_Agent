@@ -11,6 +11,7 @@ import {
 import { fetch } from "expo/fetch";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useQueryClient } from "@tanstack/react-query";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
@@ -43,6 +44,7 @@ function generateId(): string {
 export default function ChatScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const tabBarHeight = useBottomTabBarHeight();
   const queryClient = useQueryClient();
   const { currentConversationId, setCurrentConversationId } = useConversation();
   const createConversation = useCreateOpenaiConversation();
@@ -198,7 +200,7 @@ export default function ChatScreen() {
 
   const reversedMessages = [...messages].reverse();
   const topPad = insets.top + (Platform.OS === "web" ? 47 : 0);
-  const bottomPad = Math.max(insets.bottom, Platform.OS === "web" ? 34 : 0);
+  const bottomPad = Platform.OS === "web" ? 34 : tabBarHeight;
 
   return (
     <KeyboardAvoidingView
