@@ -41,7 +41,7 @@ export default function HistoryScreen() {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
     setCurrentConversationId(conv.id);
-    router.push("/");
+    router.navigate("/(tabs)/");
   };
 
   const handleDelete = (conv: OpenaiConversation) => {

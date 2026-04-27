@@ -62,7 +62,7 @@ export default function ChatScreen() {
   );
 
   useEffect(() => {
-    if (!currentConversationId && !creatingRef.current) {
+    if (currentConversationId === undefined && !creatingRef.current) {
       creatingRef.current = true;
       createConversation.mutate(
         { data: { title: "New Planning Session" } },
@@ -78,7 +78,7 @@ export default function ChatScreen() {
         }
       );
     }
-  }, []);
+  }, [currentConversationId]);
 
   useEffect(() => {
     initializedRef.current = false;

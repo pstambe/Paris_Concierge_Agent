@@ -45,10 +45,11 @@ export function Sidebar({ currentId }: SidebarProps) {
 
         <Button 
           onClick={handleNewChat}
-          className="w-full justify-start gap-2 bg-secondary hover:bg-secondary/90 text-secondary-foreground font-serif font-medium text-lg shadow-sm"
+          disabled={createConversation.isPending}
+          className="w-full justify-start gap-2 bg-secondary hover:bg-secondary/90 text-secondary-foreground font-serif font-medium text-lg shadow-sm disabled:opacity-60"
         >
-          <Plus className="w-5 h-5" />
-          Plan New Trip
+          <Plus className={`w-5 h-5 ${createConversation.isPending ? "animate-spin" : ""}`} />
+          {createConversation.isPending ? "Opening…" : "Plan New Trip"}
         </Button>
       </div>
 
