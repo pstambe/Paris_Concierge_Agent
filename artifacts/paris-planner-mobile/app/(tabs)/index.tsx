@@ -6,8 +6,11 @@ import {
   StyleSheet,
   Platform,
   TextInput,
-  ImageBackground,
+  Image,
+  Dimensions,
 } from "react-native";
+
+const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get("window");
 
 import { fetch } from "expo/fetch";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
@@ -198,12 +201,12 @@ export default function ChatScreen() {
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 16;
 
   return (
-    <ImageBackground
-      source={parisBg}
-      style={[styles.container, { backgroundColor: colors.background }]}
-      imageStyle={styles.bgImage}
-      resizeMode="cover"
-    >
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <Image
+        source={parisBg}
+        style={styles.bgImage}
+        resizeMode="cover"
+      />
     <KeyboardAvoidingView
       style={styles.flex}
       behavior="padding"
@@ -214,7 +217,7 @@ export default function ChatScreen() {
           styles.header,
           {
             paddingTop: topPad + 12,
-            backgroundColor: colors.background,
+            backgroundColor: "transparent",
             borderBottomColor: colors.border,
           },
         ]}
@@ -234,6 +237,7 @@ export default function ChatScreen() {
         ListHeaderComponent={showTyping ? <TypingIndicator /> : null}
         keyboardDismissMode="interactive"
         keyboardShouldPersistTaps="handled"
+        style={styles.list}
         contentContainerStyle={
           messages.length === 0 ? [styles.emptyContainer] : styles.listContent
         }
@@ -260,7 +264,7 @@ export default function ChatScreen() {
         </Text>
       </View>
     </KeyboardAvoidingView>
-    </ImageBackground>
+    </View>
   );
 }
 
@@ -271,8 +275,17 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
+  list: {
+    flex: 1,
+    backgroundColor: "transparent",
+  },
   bgImage: {
-    opacity: 0.15,
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: SCREEN_W,
+    height: SCREEN_H,
+    opacity: 0.18,
   },
   header: {
     flexDirection: "row",
