@@ -12,16 +12,33 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
   const isUser = message.role === "user";
 
   const renderFormattedText = (text: string) => {
-    const lines = text.split("\n");
+    // Collapse runs of blank lines into a single blank, then trim
+    const collapsed = text.replace(/\n{3,}/g, "\n\n").trim();
+    const lines = collapsed.split("\n");
+    let prevWasBlank = false;
+
     return lines.map((line, i) => {
+      const isBlank = line.trim() === "";
+
+      if (isBlank) {
+        if (prevWasBlank) return null;
+        prevWasBlank = true;
+        return <div key={i} className="h-1" />;
+      }
+
+      prevWasBlank = false;
+
+      if (line.match(/^-{3,}$/)) {
+        return <hr key={i} className="my-1 border-border" />;
+      }
       if (line.startsWith("### ")) {
-        return <h3 key={i} className="text-base font-serif font-semibold text-primary mt-2 mb-0">{line.replace("### ", "")}</h3>;
+        return <h3 key={i} className="text-base font-serif font-semibold text-primary mt-2 mb-0">{renderInlineMarkdown(line.replace("### ", ""))}</h3>;
       }
       if (line.startsWith("## ")) {
-        return <h2 key={i} className="text-lg font-serif font-bold text-primary mt-2 mb-0">{line.replace("## ", "")}</h2>;
+        return <h2 key={i} className="text-lg font-serif font-bold text-primary mt-2 mb-0">{renderInlineMarkdown(line.replace("## ", ""))}</h2>;
       }
       if (line.startsWith("# ")) {
-        return <h1 key={i} className="text-xl font-serif font-bold text-primary mt-2 mb-0">{line.replace("# ", "")}</h1>;
+        return <h1 key={i} className="text-xl font-serif font-bold text-primary mt-2 mb-0">{renderInlineMarkdown(line.replace("# ", ""))}</h1>;
       }
       if (line.match(/^[\-\*]\s/)) {
         return (
@@ -29,9 +46,6 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
             {renderInlineMarkdown(line.replace(/^[\-\*]\s/, ""))}
           </li>
         );
-      }
-      if (line.trim() === "") {
-        return <div key={i} className="h-1" />;
       }
       return <p key={i} className="leading-snug">{renderInlineMarkdown(line)}</p>;
     });
