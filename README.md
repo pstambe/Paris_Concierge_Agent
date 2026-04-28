@@ -49,6 +49,24 @@ An AI travel concierge that helps you plan a personalised, day-by-day Paris itin
 
 ---
 
+## UI
+
+### Mobile app
+
+The mobile app is built with Expo / React Native and shares the same backend as the web app. On launch, the concierge greets the user with a welcome screen before opening into the full chat interface.
+
+![Mobile welcome screen](docs/screenshots/mobile-welcome-screen.png)
+
+### Web app
+
+The web app provides the same conversational experience in a browser, with a responsive layout that adapts from desktop to narrow viewports.
+
+![Web app — desktop](docs/screenshots/guardrail-normal-operation-desktop.png)
+
+![Web app — responsive](docs/screenshots/guardrail-normal-operation-responsive.png)
+
+---
+
 ## How It Works
 
 1. The user types a message in the web or mobile app.
@@ -115,14 +133,6 @@ The system prompt enforces:
 - **Identity** — always presents as *L'Itinéraire*, never another AI
 
 ### Guardrails in action
-
-**Normal operation — Paris trip planning**
-
-The concierge gathers context (dates, budget, walking preference, interests) and builds a personalised itinerary, staying entirely within its Paris travel scope.
-
-![Paris trip planning conversation — desktop](docs/screenshots/guardrail-normal-operation-desktop.png)
-
-![Paris trip planning conversation — responsive view](docs/screenshots/guardrail-normal-operation-responsive.png)
 
 **Off-topic request deflected**
 
