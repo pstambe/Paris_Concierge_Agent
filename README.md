@@ -142,6 +142,44 @@ When a user asks about travel outside Paris (e.g. "how do I travel to Mexico"), 
 
 ---
 
+## Future Enhancements
+
+Features are tagged by effort: `Quick win` · `Medium lift` · `Big feature`
+
+### AI & Intelligence
+
+| Feature | Effort | Description |
+|---|---|---|
+| **User preference memory** | Quick win | Store dietary restrictions, budget level, and travel style across sessions so the AI never asks the same question twice. |
+| **Real-time data integration** | Medium lift | Connect live APIs — weather, Google Maps, Yelp, Viator — so recommendations reflect current hours, closures, and crowd levels. |
+| **Multi-model routing** | Medium lift | Use a fast model (GPT-4o mini) for quick replies and a smarter model for complex itinerary planning, reducing cost without sacrificing quality. |
+| **Voice input support** | Big feature | Add speech-to-text on mobile so travellers can ask questions hands-free while exploring the city. |
+
+### User Experience
+
+| Feature | Effort | Description |
+|---|---|---|
+| **Exportable itinerary** | Quick win | Let users download their plan as a PDF or add stops directly to Google Calendar / Apple Maps with one tap. |
+| **Photo-rich responses** | Medium lift | Embed curated photos of recommended places (via Unsplash or Google Places API) directly in the chat for visual discovery. |
+| **Interactive map view** | Big feature | Render itinerary stops on a Google or Mapbox map with walking routes between them — visual planning alongside the conversation. |
+| **Offline mode** | Big feature | Cache the user's final itinerary locally on mobile so they can access it without data — critical when roaming in Paris. |
+
+### Collaboration & Social
+
+| Feature | Effort | Description |
+|---|---|---|
+| **Trip sharing & public links** | Quick win | Generate a shareable read-only link to any itinerary so users can send their Paris plan to friends or post it on social media. |
+| **Shared trip planning** | Big feature | Let multiple travellers collaborate on the same conversation in real time — great for couples or groups with different interests. |
+
+### Business & Monetisation
+
+| Feature | Effort | Description |
+|---|---|---|
+| **Affiliate booking links** | Medium lift | Integrate GetYourGuide, Viator, or OpenTable so the AI surfaces bookable tours and restaurant reservations with affiliate revenue. |
+| **White-label / multi-city** | Big feature | Abstract the Paris persona into a configurable city template — sell to tourism boards or hotels as their own branded concierge. |
+
+---
+
 ## License
 
 MIT
