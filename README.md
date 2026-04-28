@@ -114,6 +114,22 @@ The system prompt enforces:
 - **Harmful content** — refuses to produce anything harmful or illegal
 - **Identity** — always presents as *L'Itinéraire*, never another AI
 
+### Guardrails in action
+
+**Normal operation — Paris trip planning**
+
+The concierge gathers context (dates, budget, walking preference, interests) and builds a personalised itinerary, staying entirely within its Paris travel scope.
+
+![Paris trip planning conversation — desktop](docs/screenshots/guardrail-normal-operation-desktop.png)
+
+![Paris trip planning conversation — responsive view](docs/screenshots/guardrail-normal-operation-responsive.png)
+
+**Off-topic request deflected**
+
+When a user asks about travel outside Paris (e.g. "how do I travel to Mexico"), the assistant politely declines and steers the conversation back to Paris trip planning — without breaking character or exposing system prompt details.
+
+![Off-topic guardrail deflection](docs/screenshots/guardrail-offtopic-deflection.png)
+
 ---
 
 ## License
