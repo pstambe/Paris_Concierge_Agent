@@ -61,7 +61,6 @@ The mobile app is built with Expo / React Native and shares the same backend as 
 
 The web app provides the same conversational experience in a browser, with a responsive layout that adapts from desktop to narrow viewports.
 
-![Web app — desktop](docs/screenshots/guardrail-normal-operation-desktop.png)
 
 ![Web app — responsive](docs/screenshots/guardrail-normal-operation-responsive.png)
 
