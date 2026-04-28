@@ -55,7 +55,7 @@ An AI travel concierge that helps you plan a personalised, day-by-day Paris itin
 
 The mobile app is built with Expo / React Native and shares the same backend as the web app. On launch, the concierge greets the user with a welcome screen before opening into the full chat interface.
 
-![Mobile welcome screen](docs/screenshots/mobile-welcome-screen.png)
+<img src="docs/screenshots/mobile-welcome-screen.png" width="40%" alt="Mobile welcome screen">
 
 ### Web app
 
@@ -155,8 +155,6 @@ Features are tagged by effort: `Quick win` · `Medium lift` · `Big feature`
 | **Multi-model routing** | Medium lift | Use a fast model (GPT-4o mini) for quick replies and a smarter model for complex itinerary planning, reducing cost without sacrificing quality. |
 | **Voice input support** | Big feature | Add speech-to-text on mobile so travellers can ask questions hands-free while exploring the city. |
 
-![AI & Intelligence enhancements](docs/screenshots/future-enhancements-ai-intelligence.png)
-
 ### User Experience
 
 | Feature | Effort | Description |
@@ -166,8 +164,6 @@ Features are tagged by effort: `Quick win` · `Medium lift` · `Big feature`
 | **Interactive map view** | Big feature | Render itinerary stops on a Google or Mapbox map with walking routes between them — visual planning alongside the conversation. |
 | **Offline mode** | Big feature | Cache the user's final itinerary locally on mobile so they can access it without data — critical when roaming in Paris. |
 
-![User Experience enhancements](docs/screenshots/future-enhancements-user-experience.png)
-
 ### Collaboration & Social / Business & Monetisation
 
 | Feature | Effort | Description |
@@ -176,8 +172,6 @@ Features are tagged by effort: `Quick win` · `Medium lift` · `Big feature`
 | **Shared trip planning** | Big feature | Let multiple travellers collaborate on the same conversation in real time — great for couples or groups with different interests. |
 | **Affiliate booking links** | Medium lift | Integrate GetYourGuide, Viator, or OpenTable so the AI surfaces bookable tours and restaurant reservations with affiliate revenue. |
 | **White-label / multi-city** | Big feature | Abstract the Paris persona into a configurable city template — sell to tourism boards or hotels as their own branded concierge. |
-
-![Collaboration & Business enhancements](docs/screenshots/future-enhancements-collaboration-business.png)
 
 ---
 
